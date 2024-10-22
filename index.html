@@ -37,11 +37,18 @@
             background-color: #f9f9f9;
             display: none;
         }
+        .alert-box h2 {
+            margin-bottom: 10px;
+        }
         .alert-box pre {
             white-space: pre-wrap;
             word-wrap: break-word;
+            background-color: #eef;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
         }
-        .copy-button {
+        .copy-button, .close-button {
             background-color: #007bff;
             color: white;
             border: none;
@@ -49,8 +56,18 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        .copy-button:hover {
+        .copy-button:hover, .close-button:hover {
             background-color: #0056b3;
+        }
+        .diff-count {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .close-button {
+            background-color: #dc3545;
+        }
+        .close-button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -61,8 +78,10 @@
 
     <div class="alert-box" id="alertBox">
         <h2>Different IDs</h2>
+        <div class="diff-count" id="diffCount"></div>
         <pre id="alertContent"></pre>
         <button class="copy-button" id="copyButton">Copy to Clipboard</button>
+        <button class="close-button" id="closeButton">Close</button>
     </div>
 
     <script>
@@ -95,7 +114,9 @@
             const fileInput = document.getElementById('csvFile');
             const alertBox = document.getElementById('alertBox');
             const alertContent = document.getElementById('alertContent');
+            const diffCount = document.getElementById('diffCount');
             const copyButton = document.getElementById('copyButton');
+            const closeButton = document.getElementById('closeButton');
 
             if (fileInput.files.length === 0) {
                 alert('Please upload a CSV file.');
@@ -110,9 +131,11 @@
 
                 if (differentIds.length > 0) {
                     alertContent.textContent = differentIds.join(', ');
+                    diffCount.textContent = `Total Different IDs: ${differentIds.length}`;
                     alertBox.style.display = 'block';
                 } else {
                     alertContent.textContent = 'No different IDs found.';
+                    diffCount.textContent = '';
                     alertBox.style.display = 'block';
                 }
             };
@@ -121,6 +144,11 @@
             // Add copy to clipboard functionality
             copyButton.addEventListener('click', () => {
                 copyToClipboard(alertContent.textContent);
+            });
+
+            // Close button functionality
+            closeButton.addEventListener('click', () => {
+                alertBox.style.display = 'none';
             });
         });
     </script>

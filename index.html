@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV ID Difference Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="file"], button {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .alert-box {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .alert-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .copy-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV ID Difference Checker</h1>
+    <input type="file" id="csvFile" accept=".csv">
+    <button id="runButton">Run</button>
+
+    <div class="alert-box" id="alertBox">
+        <h2>Different IDs</h2>
+        <pre id="alertContent"></pre>
+        <button class="copy-button" id="copyButton">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        // Function to parse CSV file
+        function parseCSV(text) {
+            const rows = text.split('\n').map(row => row.split(','));
+            const columnA = rows.map(row => row[0]?.trim()).filter(Boolean); // Column A
+            const columnB = rows.map(row => row[1]?.trim()).filter(Boolean); // Column B
+            return { columnA, columnB };
+        }
+
+        // Function to get different IDs from two arrays
+        function getDifferentIds(array1, array2) {
+            const uniqueArray1 = array1.filter(id => !array2.includes(id));
+            const uniqueArray2 = array2.filter(id => !array1.includes(id));
+            return uniqueArray1.concat(uniqueArray2);
+        }
+
+        // Function to copy content to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy text: ', err);
+            });
+        }
+
+        // Handling file upload and processing
+        document.getElementById('runButton').addEventListener('click', () => {
+            const fileInput = document.getElementById('csvFile');
+            const alertBox = document.getElementById('alertBox');
+            const alertContent = document.getElementById('alertContent');
+            const copyButton = document.getElementById('copyButton');
+
+            if (fileInput.files.length === 0) {
+                alert('Please upload a CSV file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const csvText = event.target.result;
+                const { columnA, columnB } = parseCSV(csvText);
+                const differentIds = getDifferentIds(columnA, columnB);
+
+                if (differentIds.length > 0) {
+                    alertContent.textContent = differentIds.join(', ');
+                    alertBox.style.display = 'block';
+                } else {
+                    alertContent.textContent = 'No different IDs found.';
+                    alertBox.style.display = 'block';
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+
+            // Add copy to clipboard functionality
+            copyButton.addEventListener('click', () => {
+                copyToClipboard(alertContent.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
